@@ -14,7 +14,7 @@ class AuditController extends Controller
      */
     public function index()
     {
-        $audits = \App\Models\Audit::with(['auditor', 'auditee'])->latest()->paginate(10);
+        $audits = \App\Models\Audit::with(['auditor', 'auditee', 'laporan'])->latest()->paginate(10);
         return view('pages.daftar_audit_auditor', compact('audits'));
     }
 

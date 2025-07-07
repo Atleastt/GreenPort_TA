@@ -67,4 +67,9 @@ class Audit extends Model
                     ->withPivot('score', 'auditor_notes', 'status', 'auditee_notes', 'auditee_attachment_path')
                     ->withTimestamps();
     }
+
+    public function laporan()
+    {
+        return $this->hasOne(Laporan::class);
+    }
 }

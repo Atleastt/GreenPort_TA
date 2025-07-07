@@ -16,7 +16,18 @@ class LaporanController extends Controller
      */
     public function create(Audit $audit)
     {
-        // Anda bisa memuat data lain yang diperlukan dari audit di sini
+        // Check if audit is completed
+        if ($audit->status !== 'Completed') {
+            return redirect()->route('daftar.audit.auditor')
+                ->with('error', 'Hanya audit yang sudah selesai yang dapat dibuatkan laporan.');
+        }
+
+        // Check if report already exists
+        $existingReport = Laporan::where('audit_id', $audit->id)->first();
+        if ($existingReport) {
+            return redirect()->route('daftar.audit.auditor')
+                ->with('error', 'Laporan untuk audit ini sudah dibuat.');
+        }
         return view('pages.create_laporan_auditor', compact('audit'));
     }
 
@@ -42,15 +53,29 @@ class LaporanController extends Controller
             'compliance_score' => 'nullable|numeric|min:0|max:100',
         ]);
 
+        // Check if report already exists for this audit
+        $existingReport = Laporan::where('audit_id', $request->audit_id)->first();
+        if ($existingReport) {
+            return redirect()->back()->withErrors(['audit_id' => 'Laporan untuk audit ini sudah dibuat.']);
+        }
+
+        // Verify that the audit is completed
+        $audit = Audit::findOrFail($request->audit_id);
+        if ($audit->status !== 'Completed') {
+            return redirect()->back()->withErrors(['audit_id' => 'Hanya audit yang sudah selesai yang dapat dibuatkan laporan.']);
+        }
+
         Laporan::create([
             'audit_id' => $request->audit_id,
             'title' => $request->report_title,
             'executive_summary' => $request->executive_summary,
             'findings_recommendations' => $request->findings_recommendations,
             'compliance_score' => $request->compliance_score,
+            'period_start' => $audit->scheduled_start_date,
+            'period_end' => $audit->scheduled_end_date,
         ]);
 
-        return redirect()->route('pelaporan')->with('success', 'Laporan audit berhasil dibuat.');
+        return redirect()->route('daftar.audit.auditor')->with('success', 'Laporan audit berhasil dibuat.');
     }
     //
 }
