@@ -18,7 +18,7 @@ class DashboardController extends Controller
 
         // Count upcoming audits scheduled for this Auditee
         $upcomingAudits = Audit::where('auditee_id', $userId)
-            ->where('tanggal_jadwal', '>=', now())
+            ->where('schedule_start_date', '>=', now())
             ->count();
 
         // TODO: Implement logic to count pending document uploads
@@ -29,4 +29,4 @@ class DashboardController extends Controller
 
         return view('pages.dashboard_auditee', compact('upcomingAudits', 'pendingDocuments', 'openFindings'));
     }
-} 
+}

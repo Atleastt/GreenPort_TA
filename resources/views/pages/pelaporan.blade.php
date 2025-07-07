@@ -15,6 +15,14 @@
                     <form action="{{ route('pelaporan.store') }}" method="POST" class="grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
                         @csrf
                         <div>
+                            <label for="audit_name" class="block text-sm font-medium text-gray-700">Nama Audit</label>
+                            <select id="audit_name" name="audit_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm">
+                                @foreach($audit as $a)
+                                    <option value="{{$a->id}}">{{$a->title}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
                             <label for="report_type" class="block text-sm font-medium text-gray-700">Jenis Laporan</label>
                             <select id="report_type" name="report_type" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm">
                                 <option>Ringkasan Eksekutif</option>
@@ -22,6 +30,10 @@
                                 <option>Laporan Tindak Lanjut</option>
                             </select>
                         </div>
+                        {{-- <div>
+                            <label for="report-title" class="block text-sm font-medium text-gray-700">Judul Laporan</label>
+                            <input type="text" name="report-title" id="report-title" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm" placeholder="Tambahkan judul laporan">
+                        </div> --}}
                         <div>
                             <label for="start_date" class="block text-sm font-medium text-gray-700">Periode Mulai</label>
                             <input type="date" name="start_date" id="start_date" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm">
@@ -59,7 +71,7 @@
                         <tbody class="bg-white divide-y divide-gray-200">
                             @forelse ($reports as $report)
                                 <tr class="hover:bg-gray-50">
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $report->name }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $report->name || "" }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $report->created_at->isoFormat('D MMMM YYYY') }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $report->period_start->isoFormat('D MMM YYYY') }} - {{ $report->period_end->isoFormat('D MMM YYYY') }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
