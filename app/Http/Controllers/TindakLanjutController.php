@@ -20,7 +20,7 @@ class TindakLanjutController extends Controller
             // Auditor sees all follow-ups for their audits
             $tindakLanjuts = TindakLanjut::with(['rekomendasi.audit', 'auditee'])
                                        ->whereHas('rekomendasi', function($query) {
-                                           $query->where('auditor_id', Auth::id());
+                                           $query->where('audit_id', Auth::id());
                                        })
                                        ->latest()
                                        ->paginate(10);
