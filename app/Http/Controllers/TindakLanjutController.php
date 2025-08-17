@@ -24,7 +24,6 @@ class TindakLanjutController extends Controller
                                        })
                                        ->latest()
                                        ->paginate(10);
-            dd($tindakLanjuts);
         } else {
             // Auditee sees only their follow-ups
             $tindakLanjuts = TindakLanjut::with(['rekomendasi.audit'])
