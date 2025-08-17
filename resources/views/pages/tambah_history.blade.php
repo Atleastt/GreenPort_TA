@@ -8,19 +8,19 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
+                <div class="p-6 text-gray-900
                     <form action="#" method="POST" class="space-y-6">
                         @csrf
 
                         <!-- Judul Peristiwa -->
                         <div>
-                            <label for="judul_peristiwa" class="block text-sm font-medium text-gray-700">Peristiwa</label>
+                            <label for="judul_peristiwa" class="block text-sm font-medium text-gray-700 Peristiwa</label>
                             <input type="text" name="judul_peristiwa" id="judul_peristiwa" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="Contoh: Rapat Kick-off Audit">
                         </div>
 
                         <!-- Audit Terkait -->
                         <div>
-                            <label for="audit_terkait" class="block text-sm font-medium text-gray-700">Audit Terkait (Opsional)</label>
+                            <label for="audit_terkait" class="block text-sm font-medium text-gray-700 Terkait (Opsional)</label>
                             <select name="audit_terkait" id="audit_terkait" class="mt-1 block w-full rounded-md border-gray-300 py-2 px-3 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm">
                                 <option>Tidak ada</option>
                                 <option>Audit Kepatuhan SOP Logistik Q3</option>
@@ -30,21 +30,20 @@
 
                         <!-- Tanggal Peristiwa -->
                         <div>
-                            <label for="tanggal_peristiwa" class="block text-sm font-medium text-gray-700">Tanggal Peristiwa</label>
-                            <input type="date" name="tanggal_peristiwa" id="tanggal_peristiwa"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                            <label for="tanggal_peristiwa" class="block text-sm font-medium text-gray-700 Peristiwa</label>
+                            <input type="date" name="tanggal_peristiwa" id="tanggal_peristiwa" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                         </div>
 
                         <!-- Deskripsi -->
                         <div>
-                            <label for="deskripsi" class="block text-sm font-medium text-gray-700">Deskripsi</label>
+                            <label for="deskripsi" class="block text-sm font-medium text-gray-700
                             <textarea name="deskripsi" id="deskripsi" rows="4" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="Jelaskan detail peristiwa atau catatan yang ingin ditambahkan."></textarea>
                         </div>
 
                         <!-- Tombol Aksi -->
                         <div class="flex justify-end space-x-4">
-                        <button type="button" class="rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50">Batal</button>
-                        <button type="submit" class="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700">Simpan Catatan</button>
+                            <button type="button" class="rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50
+                            <button type="submit" class="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700">Simpan Catatan</button>
                         </div>
                     </form>
                 </div>
@@ -79,7 +78,7 @@
                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm">
             </div>
         </div>
-
+        
         <div>
             <label for="indicator_history" class="block text-sm font-medium text-gray-700">Indikator</label>
             <input type="text" id="indicator_history" x-model="newItem.indicator" placeholder="Indikator yang diaudit"
@@ -171,7 +170,7 @@
         <a href="{{ route('history') }}" class="px-6 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
             Batal & Kembali
         </a>
-        <button type="button" @click="if(items.length > 0) { alert('Menyimpan ' + items.length + ' item transaksi history... (implementasi simpan ke db)'); items=[]; } else { alert('Tidak ada item untuk disimpan.'); }"
+        <button type="button" @click="if(items.length > 0) { alert('Menyimpan ' + items.length + ' item transaksi history... (implementasi simpan ke db)'); items=[]; } else { alert('Tidak ada item untuk disimpan.'); }" 
                 :disabled="items.length === 0"
                 :class="{ 'opacity-50 cursor-not-allowed': items.length === 0 }"
                 class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-6 py-2 rounded-md shadow-sm text-sm">
@@ -179,4 +178,4 @@
         </button>
     </div>
 </div>
-@endsection
+@endsection 

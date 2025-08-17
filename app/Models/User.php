@@ -56,4 +56,44 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->name;
     }
+
+    /**
+     * Get audits where user is auditor.
+     */
+    public function auditsAsAuditor()
+    {
+        return $this->hasMany(Audit::class, 'auditor_id');
+    }
+
+    /**
+     * Get audits where user is auditee.
+     */
+    public function auditsAsAuditee()
+    {
+        return $this->hasMany(Audit::class, 'auditee_id');
+    }
+
+    /**
+     * Get rekomendasi created by this auditor.
+     */
+    public function rekomendasisAsAuditor()
+    {
+        return $this->hasMany(Rekomendasi::class, 'auditor_id');
+    }
+
+    /**
+     * Get rekomendasi assigned to this auditee.
+     */
+    public function rekomendasisAsAuditee()
+    {
+        return $this->hasMany(Rekomendasi::class, 'auditee_id');
+    }
+
+    /**
+     * Get tindak lanjut by this auditee.
+     */
+    public function tindakLanjuts()
+    {
+        return $this->hasMany(TindakLanjut::class, 'auditee_id');
+    }
 }

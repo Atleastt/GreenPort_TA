@@ -23,11 +23,13 @@ if (workbox) {
   //   maxRetentionTime: 24 * 60 // Retry selama 1 hari
   // });
 
-  // Manual handling untuk POST ke '/bukti-pendukung' - tidak menggunakan background sync
-  // karena menggunakan localStorage approach di frontend
+  // Manual handling untuk POST ke '/bukti-pendukung' - hanya untuk auditee
+  // Tidak menggunakan background sync karena menggunakan localStorage approach di frontend
   workbox.routing.registerRoute(
     ({ url, request }) =>
-      request.method === 'POST' && url.pathname.includes('/bukti-pendukung'),
+      request.method === 'POST' && 
+      url.pathname.includes('/bukti-pendukung') &&
+      !url.pathname.includes('/auditor/'),
     new workbox.strategies.NetworkOnly(),
     'POST'
   );
@@ -46,11 +48,14 @@ if (workbox) {
     })
   );
 
-  // Offline caching khusus untuk halaman upload (bukti-pendukung)
+  // Offline caching khusus untuk halaman upload auditee (bukti-pendukung)
+  // Hanya untuk auditee, tidak untuk auditor
   workbox.routing.registerRoute(
-    ({ request, url }) => request.mode === 'navigate' && url.pathname.startsWith('/bukti-pendukung'),
+    ({ request, url }) => request.mode === 'navigate' && 
+      url.pathname.startsWith('/bukti-pendukung') && 
+      !url.pathname.includes('/auditor/'),
     new workbox.strategies.NetworkFirst({
-      cacheName: 'upload-pages',
+      cacheName: 'auditee-upload-pages',
       networkTimeoutSeconds: 3,
       plugins: [
         new workbox.expiration.ExpirationPlugin({
@@ -61,7 +66,7 @@ if (workbox) {
         // Saat offline, kembalikan halaman upload yang sudah di-cache, atau halaman offline
         {
           handlerDidError: async ({ event }) => {
-            const cache = await caches.open('upload-pages');
+            const cache = await caches.open('auditee-upload-pages');
             const cachedResponse = await cache.match(event.request);
             return cachedResponse || caches.match('/offline');
           }
@@ -70,9 +75,11 @@ if (workbox) {
     })
   );
 
-  // Fallback ke halaman offline untuk navigasi lain
+  // Fallback ke halaman offline untuk navigasi lain (kecuali halaman auditee)
   workbox.routing.registerRoute(
-    ({ request, url }) => request.mode === 'navigate' && !url.pathname.startsWith('/bukti-pendukung'),
+    ({ request, url }) => request.mode === 'navigate' && 
+      !url.pathname.startsWith('/bukti-pendukung') &&
+      !url.pathname.includes('/auditee/'),
     new workbox.strategies.NetworkFirst({
       cacheName: 'pages',
       networkTimeoutSeconds: 3,

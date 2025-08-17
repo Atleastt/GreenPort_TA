@@ -68,6 +68,9 @@ class Audit extends Model
                     ->withTimestamps();
     }
 
+    /**
+     * Get the laporan for the audit.
+     */
     public function laporan()
     {
         return $this->hasOne(Laporan::class);

@@ -83,6 +83,12 @@ class RoleAccessTest extends TestCase
         $this->actingAs($auditee)
             ->get(route('form.buat.audit.auditor'))
             ->assertStatus(403);
+            
+        // Auditee should have access to offline features
+        $this->actingAs($auditee)
+            ->get(route('bukti-pendukung.index'))
+            ->assertStatus(200)
+            ->assertSee('Offline'); // Should see offline status indicator
     }
 
     /** @test */

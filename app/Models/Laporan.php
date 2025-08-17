@@ -10,7 +10,6 @@ class Laporan extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name',
         'title',
         'audit_id',
         'executive_summary',
@@ -26,6 +25,9 @@ class Laporan extends Model
         'compliance_score' => 'decimal:2',
     ];
 
+    /**
+     * Get the audit that owns the laporan.
+     */
     public function audit()
     {
         return $this->belongsTo(Audit::class);

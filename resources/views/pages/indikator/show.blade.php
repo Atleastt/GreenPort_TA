@@ -29,8 +29,8 @@
                     </div>
 
                     <div class="mt-8 flex justify-end">
-                        <a href="{{ route('dashboard.auditor') }}" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold px-4 py-2 rounded-md shadow-sm">
-                            Kembali ke Dasbor
+                        <a href="{{ route('dashboard') }}" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold px-4 py-2 rounded-md shadow-sm">
+                            Kembali ke Dashboard
                         </a>
                     </div>
                 </div>

@@ -123,4 +123,21 @@ class AuditController extends Controller
         // Untuk saat ini, kita akan gunakan view contoh
         return view('pages.laporan_audit_contoh', compact('audit'));
     }
+
+    /**
+     * Display assessment results for Auditee.
+     */
+    public function hasilPenilaian()
+    {
+        $user = Auth::user();
+        
+        // Get audits where current user is the auditee and audit is completed
+        $audits = Audit::with(['auditor', 'auditee', 'laporan'])
+                         ->where('auditee_id', $user->id)
+                         ->where('status', 'Completed')
+                         ->latest()
+                         ->paginate(10);
+
+        return view('pages.hasil_penilaian', compact('audits'));
+    }
 }

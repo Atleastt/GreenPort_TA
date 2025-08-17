@@ -34,6 +34,7 @@
     </style>
     @laravelPWA
     @stack('styles')
+    @vite(['resources/js/network-simulator.js'])
 </head>
 <body class="font-sans antialiased bg-gray-100">
     <div x-data="{ sidebarOpen: true }" class="flex h-screen bg-gray-200">
@@ -51,127 +52,156 @@
 
             <!-- Navigation Links -->
             <nav class="flex-grow p-4 space-y-2">
+                <!-- Dashboard - Available for Both Roles -->
                 <a href="{{ route('dashboard') }}" class="flex items-center px-3 py-2.5 rounded-md hover:bg-emerald-600 {{ request()->routeIs('dashboard*') ? 'bg-lime-200 text-emerald-800 font-semibold' : '' }}">
-                    <img class="h-6 w-6 mr-3" src="{{ asset('images/icon/dashboard-icon.svg') }}" alt="Dashboard Icon">
+                    <img class="h-6 w-6 mr-3 brightness-0 invert" src="{{ asset('images/icon/dashboard-icon.svg') }}" alt="Dashboard Icon">
                     Dashboard
                 </a>
-                @role('Auditor')
-                <a href="{{ route('auditor.checklist-templates.index') }}" class="flex items-center px-3 py-2.5 rounded-md hover:bg-emerald-600 {{ request()->routeIs('auditor.checklist-templates.*') ? 'bg-lime-200 text-emerald-800 font-semibold' : '' }}">
-                    <img class="h-6 w-6 mr-3" src="{{ asset('images/icon/checklist-icon.svg') }}" alt="Checklist Icon">
-                    Checklist & Kepatuhan
-                </a>
-                @endrole
 
+                <!-- AUDITOR EXCLUSIVE FEATURES -->
                 @role('Auditor')
-                <div x-data="{ open: @json(request()->is('indikator-dokumen') || request()->is('insert-kriteria-auditor') || request()->is('bukti-pendukung-auditee') || request()->is('insert-sub-kriteria-auditor')) }" class="space-y-1">
-                    <button @click="open = !open" class="w-full flex items-center justify-between px-3 py-2.5 rounded-md hover:bg-emerald-600 focus:outline-none {{ request()->is('indikator-dokumen') || request()->is('insert-kriteria-auditor') || request()->is('bukti-pendukung-auditee') || request()->is('insert-sub-kriteria-auditor') ? 'bg-lime-200 text-emerald-800 font-semibold' : '' }}">
+                <!-- Manajemen Kriteria & Indikator -->
+                <div x-data="{ open: @json(request()->is('indikator-dokumen') || request()->is('insert-kriteria-auditor') || request()->is('insert-sub-kriteria-auditor') || request()->routeIs('indikator.*') || request()->routeIs('kriteria.*')) }" class="space-y-1">
+                    <button @click="open = !open" class="w-full flex items-center justify-between px-3 py-2.5 rounded-md hover:bg-emerald-600 focus:outline-none">
                         <span class="flex items-center">
-                            <img class="h-6 w-6 mr-3" src="{{ asset('images/icon/konfigurasi-data-icon.svg') }}" alt="Konfigurasi Data Icon">
-                            Indikator & Bobot
+                            <img class="h-6 w-6 mr-3 brightness-0 invert" src="{{ asset('images/icon/kriteria-icon.svg') }}" alt="Kriteria Icon">
+                            Kriteria & Indikator
                         </span>
-                        <img :class="{'rotate-180': open}" class="h-5 w-5 transform transition-transform duration-200" src="{{ asset('images/icon/panah-dropdown-icon.svg') }}" alt="Panah Dropdown">
+                        <img :class="{'rotate-180': open}" class="h-5 w-5 transform transition-transform duration-200 brightness-0 invert" src="{{ asset('images/icon/panah-dropdown-icon.svg') }}" alt="Panah Dropdown">
                     </button>
                     <div x-show="open" x-cloak x-transition class="ml-4 pl-4 border-l-2 border-emerald-500 space-y-1">
-                        <a href="{{ route('indikator-dokumen.index') }}" class="block px-3 py-2 rounded-md hover:bg-emerald-600 {{ request()->is('indikator-dokumen') ? 'bg-lime-200 text-emerald-800 font-semibold' : '' }}">Indikator Dokumen</a>
-                        <a href="{{ route('kriteria.create') }}" class="block px-3 py-2 rounded-md hover:bg-emerald-600 {{ request()->is('insert-kriteria-auditor') ? 'bg-lime-200 text-emerald-800 font-semibold' : '' }}">Kriteria Dokumen</a>
-                        <a href="{{ route('insert.sub.kriteria.auditor') }}" class="block px-3 py-2 rounded-md hover:bg-emerald-600 {{ request()->is('insert-sub-kriteria-auditor') ? 'bg-lime-200 text-emerald-800 font-semibold' : '' }}">Sub-Kriteria</a>
-                        <a href="{{ route('bukti-pendukung.index') }}" class="block px-3 py-2 rounded-md hover:bg-emerald-600 {{ request()->routeIs('bukti-pendukung.*') ? 'bg-lime-200 text-emerald-800 font-semibold' : '' }}">Bukti Pendukung</a>
-                        <!-- Manajemen Indikator & Bobot -->
-                        <a href="{{ route('indikator.index') }}" class="block px-3 py-2 rounded-md hover:bg-emerald-600 {{ request()->routeIs('indikator.*') ? 'bg-lime-200 text-emerald-800 font-semibold' : '' }}">Manajemen Indikator</a>
+                        <a href="{{ route('kriteria.index') }}" class="block px-3 py-2 rounded-md hover:bg-emerald-600">Manajemen Kriteria</a>
+                        <a href="{{ route('insert.sub.kriteria.auditor') }}" class="block px-3 py-2 rounded-md hover:bg-emerald-600">Sub-Kriteria</a>
+                        <a href="{{ route('indikator-dokumen.index') }}" class="block px-3 py-2 rounded-md hover:bg-emerald-600">Indikator Dokumen</a>
+                        <a href="{{ route('indikator.index') }}" class="block px-3 py-2 rounded-md hover:bg-emerald-600">Manajemen Indikator</a>
                     </div>
                 </div>
-                @endrole
-                 {{-- <div x-data="{ open: @json(request()->is('tambah-dokumen') || request()->is('tambah-dokumen*')) }" class="space-y-1">
-                    <button @click="open = !open" class="w-full flex items-center justify-between px-3 py-2.5 rounded-md hover:bg-emerald-600 focus:outline-none {{ request()->is('tambah-dokumen*') ? 'bg-lime-200 text-emerald-800 font-semibold' : '' }}">
-                        <span class="flex items-center">
-                            <img class="h-6 w-6 mr-3" src="{{ asset('images/icon/dokumen-icon.svg') }}" alt="Dokumen Icon">
-                            Dokumen
-                        </span>
-                        <img :class="{'rotate-180': open}" class="h-5 w-5 transform transition-transform duration-200" src="{{ asset('images/icon/panah-dropdown-icon.svg') }}" alt="Panah Dropdown">
-                    </button>
-                    <div x-show="open" x-cloak x-transition class="ml-4 pl-4 border-l-2 border-emerald-500 space-y-1">
-                        <a href="{{ route('tambah.dokumen') }}" class="block px-3 py-2 rounded-md hover:bg-emerald-600 {{ request()->is('tambah-dokumen') ? 'bg-lime-200 text-emerald-800 font-semibold' : '' }}">Input Dokumen</a>
-                        <a href="#" class="block px-3 py-2 rounded-md hover:bg-emerald-600">List Dokumen</a>
-                    </div>
-                </div> --}}
 
-
-                @role('Auditor')
-                <a href="{{ route('history') }}" class="flex items-center px-3 py-2.5 rounded-md hover:bg-emerald-600 {{ request()->is('history*') || request()->is('lihat-history') || request()->is('tambah-history') ? 'bg-lime-200 text-emerald-800 font-semibold' : '' }}">
-                    <img class="h-6 w-6 mr-3" src="{{ asset('images/icon/history-icon.svg') }}" alt="History Icon">
-                    Riwayat Audit
+                <!-- Template Checklist -->
+                <a href="{{ route('auditor.checklist-templates.index') }}" class="flex items-center px-3 py-2.5 rounded-md hover:bg-emerald-600 {{ request()->routeIs('auditor.checklist-templates.*') ? 'bg-lime-200 text-emerald-800 font-semibold' : '' }}">
+                    <img class="h-6 w-6 mr-3 brightness-0 invert" src="{{ asset('images/icon/checklist-icon.svg') }}" alt="Template Icon">
+                    Template Checklist
                 </a>
-                @endrole
-                @role('Auditor')
+
+                <!-- Penjadwalan Audit -->
+                <a href="{{ route('daftar.audit.auditor') }}" class="flex items-center px-3 py-2.5 rounded-md hover:bg-emerald-600 {{ request()->routeIs('daftar.audit.auditor') ? 'bg-lime-200 text-emerald-800 font-semibold' : '' }}">
+                    <img class="h-6 w-6 mr-3 brightness-0 invert" src="{{ asset('images/icon/audit-schedule-icon.svg') }}" alt="Jadwal Icon">
+                    Penjadwalan Audit
+                </a>
+
+                <!-- Pelaksanaan Audit -->
+                <a href="{{ route('visitasi.lapangan') }}" class="flex items-center px-3 py-2.5 rounded-md hover:bg-emerald-600 {{ request()->is('visitasi-lapangan') ? 'bg-lime-200 text-emerald-800 font-semibold' : '' }}">
+                    <img class="h-6 w-6 mr-3 brightness-0 invert" src="{{ asset('images/icon/visitasi-lapangan-icon.svg') }}" alt="Visitasi Icon">
+                    Pelaksanaan Audit
+                </a>
+
+                <!-- Verifikasi & Penilaian -->
+                <a href="{{ route('bukti-pendukung.index') }}" class="flex items-center px-3 py-2.5 rounded-md hover:bg-emerald-600 {{ request()->routeIs('bukti-pendukung.*') ? 'bg-lime-200 text-emerald-800 font-semibold' : '' }}">
+                    <img class="h-6 w-6 mr-3 brightness-0 invert" src="{{ asset('images/icon/dokumen-icon.svg') }}" alt="Evaluasi Icon">
+                    Verifikasi & Penilaian
+                </a>
+
+                <!-- Laporan & Temuan -->
                 <a href="{{ route('pelaporan') }}" class="flex items-center px-3 py-2.5 rounded-md hover:bg-emerald-600 {{ request()->is('pelaporan*') || request()->is('tambah-pelaporan') ? 'bg-lime-200 text-emerald-800 font-semibold' : '' }}">
-                    <img class="h-6 w-6 mr-3" src="{{ asset('images/icon/pelaporan-icon.svg') }}" alt="Pelaporan Icon">
-                    Laporan Audit
+                    <img class="h-6 w-6 mr-3 brightness-0 invert" src="{{ asset('images/icon/pelaporan-icon.svg') }}" alt="Laporan Icon">
+                    Laporan & Temuan
+                </a>
+
+                <!-- Rekomendasi (Auditor View) -->
+                <a href="{{ route('pages.rekomendasi_auditor') }}" class="flex items-center px-3 py-2.5 rounded-md hover:bg-emerald-600 {{ request()->routeIs('pages.rekomendasi_auditor') ? 'bg-lime-200 text-emerald-800 font-semibold' : '' }}">
+                    <img class="h-6 w-6 mr-3 brightness-0 invert" src="{{ asset('images/icon/dokumen-icon.svg') }}" alt="Rekomendasi Icon">
+                    Buat Rekomendasi
+                </a>
+
+                <!-- Monitoring Tindak Lanjut -->
+                <a href="{{ route('tindak-lanjut.index') }}" class="flex items-center px-3 py-2.5 rounded-md hover:bg-emerald-600 {{ request()->routeIs('tindak-lanjut.*') ? 'bg-lime-200 text-emerald-800 font-semibold' : '' }}">
+                    <img class="h-6 w-6 mr-3 brightness-0 invert" src="{{ asset('images/icon/history-icon.svg') }}" alt="Monitoring Icon">
+                    Monitoring Progress
+                </a>
+
+                <!-- Riwayat & Perbandingan -->
+                <a href="{{ route('history') }}" class="flex items-center px-3 py-2.5 rounded-md hover:bg-emerald-600 {{ request()->is('history*') || request()->is('lihat-history') || request()->is('tambah-history') ? 'bg-lime-200 text-emerald-800 font-semibold' : '' }}">
+                    <img class="h-6 w-6 mr-3 brightness-0 invert" src="{{ asset('images/icon/history-icon.svg') }}" alt="Riwayat Icon">
+                    Riwayat & Perbandingan
                 </a>
                 @endrole
-                 @role('Auditor')
-                 <a href="{{ route('visitasi.lapangan') }}" class="flex items-center px-3 py-2.5 rounded-md hover:bg-emerald-600 {{ request()->is('visitasi-lapangan') ? 'bg-lime-200 text-emerald-800 font-semibold' : '' }}">
-                    <img class="h-6 w-6 mr-3" src="{{ asset('images/icon/visitasi-lapangan-icon.svg') }}" alt="Visitasi Lapangan Icon">
-                    Visitasi Lapangan
-                </a>
-                 @endrole
-            @role('Auditor')
-            <a href="{{ route('daftar.audit.auditor') }}" class="flex items-center px-3 py-2.5 rounded-md hover:bg-emerald-600 {{ request()->routeIs('daftar.audit.auditor') ? 'bg-lime-200 text-emerald-800 font-semibold' : '' }}">
-                <img class="h-6 w-6 mr-3" src="{{ asset('images/icon/audit-schedule-icon.svg') }}" alt="Jadwal Audit Icon">
-                Jadwal Audit
-            </a>
-            
-            <a href="{{ route('regulasi') }}" class="flex items-center px-3 py-2.5 rounded-md hover:bg-emerald-600 {{ request()->routeIs('regulasi') ? 'bg-lime-200 text-emerald-800 font-semibold' : '' }}">
-                <img class="h-6 w-6 mr-3" src="{{ asset('images/icon/regulasi-icon.svg') }}" alt="Regulasi Icon">
-                Regulasi & Standar
-            </a>
-            <a href="{{ route('forum') }}" class="flex items-center px-3 py-2.5 rounded-md hover:bg-emerald-600 {{ request()->routeIs('forum') ? 'bg-lime-200 text-emerald-800 font-semibold' : '' }}">
-                <img class="h-6 w-6 mr-3" src="{{ asset('images/icon/forum-icon.svg') }}" alt="Forum Icon">
-                Forum & Konsultasi
-            </a>
-            <a href="{{ route('sertifikasi') }}" class="flex items-center px-3 py-2.5 rounded-md hover:bg-emerald-600 {{ request()->routeIs('sertifikasi') ? 'bg-lime-200 text-emerald-800 font-semibold' : '' }}">
-                <img class="h-6 w-6 mr-3" src="{{ asset('images/icon/sertifikasi-icon.svg') }}" alt="Sertifikasi Icon">
-                Sertifikasi & Penghargaan
-            </a>
-            @endrole
 
-            @role('Auditee')
-            <a href="{{ route('detail.audit.auditee') }}" class="flex items-center px-3 py-2.5 rounded-md hover:bg-emerald-600 {{ request()->routeIs('detail.audit.auditee') ? 'bg-lime-200 text-emerald-800 font-semibold' : '' }}">
-                <img class="h-6 w-6 mr-3" src="{{ asset('images/icon/audit-schedule-icon.svg') }}" alt="Jadwal Audit Icon">
-                Jadwal & Tugas
-            </a>
-            <a href="{{ route('auditee.tugas.index') }}" class="flex items-center px-3 py-2.5 rounded-md hover:bg-emerald-600 {{ request()->routeIs('auditee.tugas.index') ? 'bg-lime-200 text-emerald-800 font-semibold' : '' }}">
-                <img class="h-6 w-6 mr-3" src="{{ asset('images/icon/checklist-icon.svg') }}" alt="Checklist Icon">
-                Isi Checklist
-            </a>
-            <a href="{{ route('bukti-pendukung.index') }}" class="flex items-center px-3 py-2.5 rounded-md hover:bg-emerald-600 {{ request()->routeIs('bukti-pendukung.index') ? 'bg-lime-200 text-emerald-800 font-semibold' : '' }}">
-                <img class="h-6 w-6 mr-3" src="{{ asset('images/icon/upload-icon.svg') }}" alt="Upload Icon">
-                Upload Dokumen
-            </a>
-            <a href="{{ route('history') }}" class="flex items-center px-3 py-2.5 rounded-md hover:bg-emerald-600 {{ request()->routeIs('history') ? 'bg-lime-200 text-emerald-800 font-semibold' : '' }}">
-                <img class="h-6 w-6 mr-3" src="{{ asset('images/icon/laporan-icon.svg') }}" alt="Laporan Icon">
-                Laporan & Riwayat
-            </a>
-            
-            <a href="{{ route('regulasi') }}" class="flex items-center px-3 py-2.5 rounded-md hover:bg-emerald-600 {{ request()->routeIs('regulasi') ? 'bg-lime-200 text-emerald-800 font-semibold' : '' }}">
-                <img class="h-6 w-6 mr-3" src="{{ asset('images/icon/regulasi-icon.svg') }}" alt="Regulasi Icon">
-                Regulasi & Standar
-            </a>
-            <a href="{{ route('forum') }}" class="flex items-center px-3 py-2.5 rounded-md hover:bg-emerald-600 {{ request()->routeIs('forum') ? 'bg-lime-200 text-emerald-800 font-semibold' : '' }}">
-                <img class="h-6 w-6 mr-3" src="{{ asset('images/icon/forum-icon.svg') }}" alt="Forum Icon">
-                Forum & Konsultasi
-            </a>
-            <a href="{{ route('sertifikasi') }}" class="flex items-center px-3 py-2.5 rounded-md hover:bg-emerald-600 {{ request()->routeIs('sertifikasi') ? 'bg-lime-200 text-emerald-800 font-semibold' : '' }}">
-                <img class="h-6 w-6 mr-3" src="{{ asset('images/icon/sertifikasi-icon.svg') }}" alt="Sertifikasi Icon">
-                Sertifikasi & Penghargaan
-            </a>
-            @endrole
+                <!-- AUDITEE EXCLUSIVE FEATURES -->
+                @role('Auditee')
+                <!-- Jadwal & Tugas -->
+                <a href="{{ route('detail.audit.auditee') }}" class="flex items-center px-3 py-2.5 rounded-md hover:bg-emerald-600 {{ request()->routeIs('detail.audit.auditee') ? 'bg-lime-200 text-emerald-800 font-semibold' : '' }}">
+                    <img class="h-6 w-6 mr-3 brightness-0 invert" src="{{ asset('images/icon/audit-schedule-icon.svg') }}" alt="Jadwal Icon">
+                    Jadwal & Tugas
+                </a>
+
+                <!-- Self-Assessment Checklist -->
+                <a href="{{ route('auditee.tugas.index') }}" class="flex items-center px-3 py-2.5 rounded-md hover:bg-emerald-600 {{ request()->routeIs('auditee.tugas.index') ? 'bg-lime-200 text-emerald-800 font-semibold' : '' }}">
+                    <img class="h-6 w-6 mr-3 brightness-0 invert" src="{{ asset('images/icon/checklist-icon.svg') }}" alt="Checklist Icon">
+                    Self-Assessment Checklist
+                </a>
+
+                <!-- Upload Bukti Kepatuhan -->
+                <a href="{{ route('bukti-pendukung.index') }}" class="flex items-center px-3 py-2.5 rounded-md hover:bg-emerald-600 {{ request()->routeIs('bukti-pendukung.index') ? 'bg-lime-200 text-emerald-800 font-semibold' : '' }}">
+                    <img class="h-6 w-6 mr-3 brightness-0 invert" src="{{ asset('images/icon/upload-icon.svg') }}" alt="Upload Icon">
+                    Upload Bukti Kepatuhan
+                </a>
+
+                <!-- Hasil Penilaian -->
+                <a href="{{ route('hasil.penilaian') }}" class="flex items-center px-3 py-2.5 rounded-md hover:bg-emerald-600 {{ request()->routeIs('hasil.penilaian') ? 'bg-lime-200 text-emerald-800 font-semibold' : '' }}">
+                    <img class="h-6 w-6 mr-3 brightness-0 invert" src="{{ asset('images/icon/dokumen-icon.svg') }}" alt="Hasil Icon">
+                    Hasil Penilaian
+                </a>
+
+                <!-- Lihat Rekomendasi -->
+                <a href="{{ route('rekomendasi.index') }}" class="flex items-center px-3 py-2.5 rounded-md hover:bg-emerald-600 {{ request()->routeIs('rekomendasi.index') ? 'bg-lime-200 text-emerald-800 font-semibold' : '' }}">
+                    <img class="h-6 w-6 mr-3 brightness-0 invert" src="{{ asset('images/icon/dokumen-icon.svg') }}" alt="Rekomendasi Icon">
+                    Lihat Rekomendasi
+                </a>
+
+                <!-- Tindak Lanjut (Auditee) -->
+                <a href="{{ route('tindak-lanjut.index') }}" class="flex items-center px-3 py-2.5 rounded-md hover:bg-emerald-600 {{ request()->routeIs('tindak-lanjut.*') ? 'bg-lime-200 text-emerald-800 font-semibold' : '' }}">
+                    <img class="h-6 w-6 mr-3 brightness-0 invert" src="{{ asset('images/icon/history-icon.svg') }}" alt="Tindak Lanjut Icon">
+                    Tindak Lanjut
+                </a>
+
+                <!-- Laporan & Riwayat (Auditee) -->
+                <a href="{{ route('history') }}" class="flex items-center px-3 py-2.5 rounded-md hover:bg-emerald-600 {{ request()->routeIs('history') ? 'bg-lime-200 text-emerald-800 font-semibold' : '' }}">
+                    <img class="h-6 w-6 mr-3 brightness-0 invert" src="{{ asset('images/icon/laporan-icon.svg') }}" alt="Laporan Icon">
+                    Laporan & Riwayat
+                </a>
+                @endrole
+
+                <!-- SHARED FEATURES (Both Auditor & Auditee) -->
+                <!-- Notifikasi & Komunikasi -->
+                <a href="{{ route('notifikasi.index') }}" class="flex items-center px-3 py-2.5 rounded-md hover:bg-emerald-600 {{ request()->routeIs('notifikasi.*') ? 'bg-lime-200 text-emerald-800 font-semibold' : '' }}">
+                    <img class="h-6 w-6 mr-3 brightness-0 invert" src="{{ asset('images/icon/notifikasi-icon.svg') }}" alt="Notifikasi Icon">
+                    Notifikasi
+                </a>
+
+                <!-- Forum & Konsultasi -->
+                <a href="{{ route('forum') }}" class="flex items-center px-3 py-2.5 rounded-md hover:bg-emerald-600 {{ request()->routeIs('forum') ? 'bg-lime-200 text-emerald-800 font-semibold' : '' }}">
+                    <img class="h-6 w-6 mr-3 brightness-0 invert" src="{{ asset('images/icon/forum-icon.svg') }}" alt="Forum Icon">
+                    Forum & Konsultasi
+                </a>
+
+                <!-- Regulasi & Standar -->
+                <a href="{{ route('regulasi') }}" class="flex items-center px-3 py-2.5 rounded-md hover:bg-emerald-600 {{ request()->routeIs('regulasi') ? 'bg-lime-200 text-emerald-800 font-semibold' : '' }}">
+                    <img class="h-6 w-6 mr-3 brightness-0 invert" src="{{ asset('images/icon/regulasi-icon.svg') }}" alt="Regulasi Icon">
+                    Regulasi & Standar
+                </a>
+
+                <!-- Sertifikasi & Penghargaan -->
+                <a href="{{ route('sertifikasi') }}" class="flex items-center px-3 py-2.5 rounded-md hover:bg-emerald-600 {{ request()->routeIs('sertifikasi') ? 'bg-lime-200 text-emerald-800 font-semibold' : '' }}">
+                    <img class="h-6 w-6 mr-3 brightness-0 invert" src="{{ asset('images/icon/sertifikasi-icon.svg') }}" alt="Sertifikasi Icon">
+                    Sertifikasi & Penghargaan
+                </a>
 
             </nav>
 
             <!-- Bottom Links -->
             <div class="p-4 border-t border-emerald-600 mt-auto flex-shrink-0">
                 <a href="{{ route('profile.edit') }}" class="flex items-center px-3 py-2.5 rounded-md hover:bg-emerald-600 {{ request()->is('profile') ? 'bg-lime-200 text-emerald-800 font-semibold' : '' }}">
-                    <img class="h-6 w-6 mr-3" src="{{ asset('images/icon/pengaturan-icon.svg') }}" alt="Pengaturan Icon">
+                    <img class="h-6 w-6 mr-3 brightness-0 invert" src="{{ asset('images/icon/pengaturan-icon.svg') }}" alt="Pengaturan Icon">
                     Pengaturan
                 </a>
                 <!-- Logout Form -->
@@ -180,7 +210,7 @@
                     <a href="{{ route('logout') }}"
                        onclick="event.preventDefault(); this.closest('form').submit();"
                        class="flex items-center px-3 py-2.5 rounded-md text-red-500 hover:bg-red-600 hover:text-white">
-                    <svg class="h-6 w-6 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" /></svg>
+                    <img class="h-6 w-6 mr-3 brightness-0 saturate-200 hue-rotate-0" style="filter: brightness(0) saturate(100%) invert(33%) sepia(87%) saturate(6397%) hue-rotate(349deg) brightness(98%) contrast(107%);" src="{{ asset('images/icon/keluar-icon.svg') }}" alt="Keluar Icon">
                     Keluar
                 </a>
                 </form>
@@ -201,8 +231,13 @@
 
                 <!-- Right side of header -->
                 <div class="flex items-center space-x-4">
-                    <a href="{{ route('notifikasi') }}" class="relative text-gray-500 hover:text-gray-700 focus:outline-none">
+                    <a href="{{ route('notifications.index') }}" class="relative text-gray-500 hover:text-gray-700 focus:outline-none">
                         <img class="h-6 w-6" src="{{ asset('images/icon/notifikasi-icon.svg') }}" alt="Notifikasi Icon">
+                        @if(auth()->user()->unreadNotifications->count() > 0)
+                            <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                                {{ auth()->user()->unreadNotifications->count() }}
+                            </span>
+                        @endif
                     </a>
                     <div x-data="{ dropdownOpen: false }" class="relative">
                         <div @click="dropdownOpen = !dropdownOpen" class="flex items-center space-x-2 focus:outline-none">

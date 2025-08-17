@@ -142,17 +142,22 @@
             <h2 class="text-xl font-semibold text-gray-800 mb-4">Test Otomatis</h2>
             <p class="text-gray-600 mb-4">Jalankan semua test secara otomatis untuk berbagai ukuran file</p>
             
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <button id="run-all-tests" class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-md">
                     🚀 Run All Size Tests
-                </button>
-                <button id="run-offline-test" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-md">
-                    📱 Test Mode Offline
                 </button>
                 <button id="run-concurrent-test" class="bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-md">
                     ⚡ Test Concurrent Upload
                 </button>
             </div>
+            
+            @role('Auditee')
+            <div class="grid grid-cols-1 gap-4 mb-4">
+                <button id="run-offline-test" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-md">
+                    📱 Test Mode Offline
+                </button>
+            </div>
+            @endrole
 
             <!-- System Information -->
             <div class="bg-gray-50 rounded-lg p-4">
@@ -305,8 +310,15 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Auto test buttons
     document.getElementById('run-all-tests').addEventListener('click', runAllSizeTests);
-    document.getElementById('run-offline-test').addEventListener('click', runOfflineTest);
     document.getElementById('run-concurrent-test').addEventListener('click', runConcurrentTest);
+    
+    @role('Auditee')
+    // Offline test button - only for auditee role
+    const offlineTestBtn = document.getElementById('run-offline-test');
+    if (offlineTestBtn) {
+        offlineTestBtn.addEventListener('click', runOfflineTest);
+    }
+    @endrole
     
     // File generator buttons
     document.querySelectorAll('.generate-file-btn').forEach(btn => {
@@ -476,14 +488,17 @@ Data Processed: ${summary.total_data_processed_mb.toFixed(2)}MB
     }
 }
 
+@role('Auditee')
 async function runOfflineTest() {
     const btn = document.getElementById('run-offline-test');
+    if (!btn) return; // Button not available for this role
+    
     btn.disabled = true;
     btn.textContent = 'Testing Offline...';
     
     try {
         // Test the offline functionality of the main bukti-pendukung system
-        showNotification('Testing offline mode - check bukti-pendukung page', 'info');
+        showNotification('Testing offline mode - check bukti-pendukung page (Auditee only)', 'info');
         
         // Open bukti-pendukung page in new tab for offline testing
         window.open('{{ route("bukti-pendukung.index") }}', '_blank');
@@ -495,9 +510,10 @@ async function runOfflineTest() {
         showNotification('Error: ' + error.message, 'error');
     } finally {
         btn.disabled = false;
-        btn.textContent = '📱 Test Mode Offline';
+        btn.textContent = '📱 Test Mode Offline (Auditee Only)';
     }
 }
+@endrole
 
 async function runConcurrentTest() {
     const btn = document.getElementById('run-concurrent-test');

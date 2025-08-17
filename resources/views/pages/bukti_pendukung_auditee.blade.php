@@ -5,15 +5,17 @@
         itemToDelete: null,
         // Base URL untuk hapus dokumen
         baseUrl: '{{ url('bukti-pendukung') }}',
-        // Array untuk menyimpan upload offline
-        offlineUploads: JSON.parse(localStorage.getItem('offlineUploads') || '[]'),
+        // Array untuk menyimpan upload offline (hanya untuk auditee)
+        offlineUploads: {{ auth()->user()->hasRole('Auditee') ? "JSON.parse(localStorage.getItem('offlineUploads') || '[]')" : '[]' }},
         // State untuk sync
         isSyncing: false,
-        // Status online/offline
-        isOnline: navigator.onLine,
+        // Status online/offline (hanya untuk auditee)
+        isOnline: {{ auth()->user()->hasRole('Auditee') ? 'navigator.onLine' : 'true' }},
         // Debug mode untuk testing
         debugMode: false,
         simulateOffline: false,
+        // Flag untuk mengetahui apakah user adalah auditee
+        isAuditee: {{ auth()->user()->hasRole('Auditee') ? 'true' : 'false' }},
         notification: { show: false, message: '' },
         showNotification(message) {
             this.notification.message = message;
@@ -29,8 +31,13 @@
             while(n--) { u8arr[n] = bstr.charCodeAt(n); }
             return new Blob([u8arr], { type: mimeType });
         },
-        // Simpan data form offline
+        // Simpan data form offline (hanya untuk auditee)
         saveOffline(formData) {
+            if (!this.isAuditee) {
+                console.log('Offline save not available for non-auditee users');
+                return;
+            }
+            
             const uploads = this.offlineUploads;
             const file = formData.get('file');
             const reader = new FileReader();
@@ -87,19 +94,32 @@
                 })
                 .catch(error => {
                     console.log('Upload failed with error:', error);
-                    this.showNotification('Gagal koneksi, data disimpan offline.');
-                    this.saveOffline(formData);
+                    if (this.isAuditee) {
+                        this.showNotification('Gagal koneksi, data disimpan offline.');
+                        this.saveOffline(formData);
+                    } else {
+                        this.showNotification('Gagal upload, coba lagi.');
+                    }
                     this.uploadModalOpen = false;
                 });
             } else {
                 console.log('Device is offline, saving data offline...');
-                this.showNotification('Anda offline, data disimpan dan akan dikirim saat online.');
-                this.saveOffline(formData);
+                if (this.isAuditee) {
+                    this.showNotification('Anda offline, data disimpan dan akan dikirim saat online.');
+                    this.saveOffline(formData);
+                } else {
+                    this.showNotification('Tidak dapat upload saat offline.');
+                }
                 this.uploadModalOpen = false;
             }
         },
-        // Sinkronisasi upload offline saat online
+        // Sinkronisasi upload offline saat online (hanya untuk auditee)
         async syncOfflineUploads() {
+            if (!this.isAuditee) {
+                console.log('Offline sync not available for non-auditee users');
+                return;
+            }
+            
             console.log('=== SYNC OFFLINE UPLOADS STARTED ===');
             console.log('isOnline:', this.isOnline);
             console.log('simulateOffline:', this.simulateOffline);
@@ -219,79 +239,83 @@
             this.showNotification('{{ session('success') }}');
         @endif
         
-        // Load dan debug offline uploads
-        const storedUploads = localStorage.getItem('offlineUploads');
-        console.log('Stored offline uploads from localStorage:', storedUploads);
-        if (storedUploads) {
-            try {
-                const parsedUploads = JSON.parse(storedUploads);
-                console.log('Parsed offline uploads:', parsedUploads);
-                this.offlineUploads = parsedUploads;
-            } catch (e) {
-                console.error('Error parsing offline uploads:', e);
-                localStorage.removeItem('offlineUploads');
-                this.offlineUploads = [];
+        // Load dan debug offline uploads (hanya untuk auditee)
+        if (this.isAuditee) {
+            const storedUploads = localStorage.getItem('offlineUploads');
+            console.log('Stored offline uploads from localStorage:', storedUploads);
+            if (storedUploads) {
+                try {
+                    const parsedUploads = JSON.parse(storedUploads);
+                    console.log('Parsed offline uploads:', parsedUploads);
+                    this.offlineUploads = parsedUploads;
+                } catch (e) {
+                    console.error('Error parsing offline uploads:', e);
+                    localStorage.removeItem('offlineUploads');
+                    this.offlineUploads = [];
+                }
             }
-        }
-        
-        // Coba sinkronisasi jika ada data offline
-        console.log('=== INITIAL SYNC CHECK ===');
-        console.log('Initial offlineUploads count:', this.offlineUploads.length);
-        console.log('Initial isOnline:', this.isOnline);
-        
-        if (this.offlineUploads.length > 0 && this.isOnline) {
-            console.log('Found offline uploads, scheduling initial sync...');
-            setTimeout(() => {
-                console.log('Executing initial sync...');
-                this.syncOfflineUploads();
-            }, 2000);
-        } else {
-            console.log('No initial sync needed');
+            
+            // Coba sinkronisasi jika ada data offline
+            console.log('=== INITIAL SYNC CHECK ===');
+            console.log('Initial offlineUploads count:', this.offlineUploads.length);
+            console.log('Initial isOnline:', this.isOnline);
+            
+            if (this.offlineUploads.length > 0 && this.isOnline) {
+                console.log('Found offline uploads, scheduling initial sync...');
+                setTimeout(() => {
+                    console.log('Executing initial sync...');
+                    this.syncOfflineUploads();
+                }, 2000);
+            } else {
+                console.log('No initial sync needed');
+            }
         }
         
         // Store reference ke instance ini untuk event listener
         const self = this;
         
-        // Event listener untuk online/offline status
-        window.addEventListener('online', () => {
-            console.log('=== DEVICE ONLINE EVENT TRIGGERED ===');
-            console.log('Offline uploads count:', self.offlineUploads.length);
-            self.isOnline = true;
+        // Event listener untuk online/offline status (hanya untuk auditee)
+        if (this.isAuditee) {
+            window.addEventListener('online', () => {
+                console.log('=== DEVICE ONLINE EVENT TRIGGERED ===');
+                console.log('Offline uploads count:', self.offlineUploads.length);
+                self.isOnline = true;
+                
+                if (self.offlineUploads.length > 0) {
+                    self.showNotification('Kembali online! Menyinkronkan data...');
+                    console.log('Scheduling sync in 2 seconds...');
+                    setTimeout(() => {
+                        console.log('Executing scheduled sync...');
+                        self.syncOfflineUploads();
+                    }, 2000);
+                } else {
+                    console.log('No offline uploads to sync');
+                    self.showNotification('Kembali online!');
+                }
+            });
             
-            if (self.offlineUploads.length > 0) {
-                self.showNotification('Kembali online! Menyinkronkan data...');
-                console.log('Scheduling sync in 2 seconds...');
-                setTimeout(() => {
-                    console.log('Executing scheduled sync...');
+            window.addEventListener('offline', () => {
+                console.log('=== DEVICE OFFLINE EVENT TRIGGERED ===');
+                self.isOnline = false;
+                self.showNotification('Mode offline aktif');
+            });
+            
+            // Auto sync ketika halaman kembali focus (user kembali ke tab)
+            window.addEventListener('focus', () => {
+                if (self.isOnline && self.offlineUploads.length > 0) {
+                    console.log('Page focused and online, checking for offline uploads...');
+                    setTimeout(() => self.syncOfflineUploads(), 1000);
+                }
+            });
+            
+            // Periodic sync check (setiap 30 detik)
+            setInterval(() => {
+                if (self.isOnline && self.offlineUploads.length > 0) {
+                    console.log('Periodic sync check...');
                     self.syncOfflineUploads();
-                }, 2000);
-            } else {
-                console.log('No offline uploads to sync');
-                self.showNotification('Kembali online!');
-            }
-        });
-        
-        window.addEventListener('offline', () => {
-            console.log('=== DEVICE OFFLINE EVENT TRIGGERED ===');
-            self.isOnline = false;
-            self.showNotification('Mode offline aktif');
-        });
-        
-        // Auto sync ketika halaman kembali focus (user kembali ke tab)
-        window.addEventListener('focus', () => {
-            if (self.isOnline && self.offlineUploads.length > 0) {
-                console.log('Page focused and online, checking for offline uploads...');
-                setTimeout(() => self.syncOfflineUploads(), 1000);
-            }
-        });
-        
-        // Periodic sync check (setiap 30 detik)
-        setInterval(() => {
-            if (self.isOnline && self.offlineUploads.length > 0) {
-                console.log('Periodic sync check...');
-                self.syncOfflineUploads();
-            }
-        }, 30000);
+                }
+            }, 30000);
+        }
     }">
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -300,6 +324,7 @@
                 <div class="flex justify-between items-center mb-6">
                     <h1 class="text-2xl font-bold text-gray-800">Bukti Pendukung Audit</h1>
                     <div class="flex items-center space-x-4">
+                        @role('Auditee')
                         <!-- Status Online/Offline -->
                         <div class="flex items-center px-2 py-1 rounded-md text-sm"
                              :class="isOnline ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
@@ -337,15 +362,12 @@
                         
                         <!-- Debug Tools (visible saat ada data offline) -->
                         <div x-show="offlineUploads.length > 0" class="flex items-center space-x-2 border-l border-gray-300 pl-4">
-                            <!-- <button @click="console.log('=== DEBUG INFO ==='); console.log('offlineUploads:', offlineUploads); console.log('localStorage:', localStorage.getItem('offlineUploads')); console.log('isOnline:', isOnline); console.log('navigator.onLine:', navigator.onLine);" 
-                                class="px-2 py-1 bg-gray-600 text-white text-xs rounded hover:bg-gray-700">
-                                Debug Log
-                            </button> -->
                             <button @click="console.log('=== FORCE SYNC TRIGGERED ==='); syncOfflineUploads();" 
                                 class="px-2 py-1 bg-purple-600 text-white text-xs rounded hover:bg-purple-700">
                                 Sinkronisasi
                             </button>
                         </div>  
+                        @endrole
                         
                         @role('Auditee')
                         <button @click="uploadModalOpen = true"

@@ -41,7 +41,7 @@ class IndikatorController extends Controller
 
         Indikator::create($validated);
 
-        return redirect()->route('dashboard.auditor')->with('success', 'Indikator berhasil ditambahkan.');
+        return redirect()->route('dashboard')->with('success', 'Indikator berhasil ditambahkan.');
     }
 
     /**
@@ -75,7 +75,7 @@ class IndikatorController extends Controller
 
         $indikator->update($validated);
 
-        return redirect()->route('dashboard.auditor')->with('success', 'Indikator berhasil diperbarui.');
+        return redirect()->route('dashboard')->with('success', 'Indikator berhasil diperbarui.');
     }
 
     /**
@@ -85,6 +85,6 @@ class IndikatorController extends Controller
     {
         $indikator->delete();
 
-        return redirect()->route('dashboard.auditor')->with('success', 'Indikator berhasil dihapus.');
+        return redirect()->route('dashboard')->with('success', 'Indikator berhasil dihapus.');
     }
 }

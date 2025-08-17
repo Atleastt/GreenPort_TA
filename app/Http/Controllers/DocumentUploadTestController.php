@@ -314,8 +314,8 @@ class DocumentUploadTestController extends Controller
             }
         }
 
-        // Test offline mode if requested
-        if ($request->include_offline_test) {
+        // Test offline mode if requested and user is auditee
+        if ($request->include_offline_test && Auth::user()->hasRole('Auditee')) {
             $results['offline_simulation'] = $this->testOfflineMode($request->temuan_id);
         }
 
@@ -328,10 +328,18 @@ class DocumentUploadTestController extends Controller
     }
 
     /**
-     * Test offline mode simulation
+     * Test offline mode simulation - only for auditee role
      */
     private function testOfflineMode($temuanId)
     {
+        // Check if user is auditee
+        if (!Auth::user()->hasRole('Auditee')) {
+            return [
+                'success' => false,
+                'message' => 'Offline mode testing is only available for auditees',
+                'offline_mode' => false,
+            ];
+        }
         try {
             // Create a small test file for offline simulation
             $testFileContent = str_repeat('B', 1024 * 512); // 512KB
@@ -494,5 +502,60 @@ class DocumentUploadTestController extends Controller
             'concurrent_count' => $concurrentCount,
             'summary' => $this->generateTestSummary($results)
         ]);
+    }
+
+    /**
+     * API endpoint for network condition testing
+     */
+    public function apiUpload(Request $request)
+    {
+        try {
+            $request->validate([
+                'file' => 'required|file|max:10240', // 10MB max
+                'temuan_id' => 'required|integer',
+                'nama_dokumen' => 'required|string|max:255',
+            ]);
+
+            $file = $request->file('file');
+            $fileSizeMB = round($file->getSize() / 1024 / 1024, 2);
+            $startTime = microtime(true);
+
+            // Simulate network delay if requested
+            if ($request->has('simulate_slow_network')) {
+                sleep(2);
+            }
+
+            // Store the file
+            $path = $file->store('uploads/test', 'public');
+            
+            $endTime = microtime(true);
+            $uploadTime = round($endTime - $startTime, 2);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'File uploaded successfully',
+                'data' => [
+                    'file_name' => $file->getClientOriginalName(),
+                    'file_size_mb' => $fileSizeMB,
+                    'file_size_kb' => round($file->getSize() / 1024, 2),
+                    'upload_time_seconds' => $uploadTime,
+                    'path' => $path,
+                    'mime_type' => $file->getMimeType(),
+                ]
+            ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Upload failed: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

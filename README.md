@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # 📚 Dokumentasi Lengkap - Sistem Audit Green Port
 
 ## 📋 Daftar Isi
@@ -84,7 +83,9 @@ php -m
 git clone [URL_REPOSITORY]
 cd greenport
 
-
+# Atau jika sudah ada folder
+cd /Users/leonfarhan/Documents/code/joki/TA-aom/greenport
+```
 
 ### 2. Install Dependencies
 
@@ -410,7 +411,7 @@ php artisan test --coverage-html coverage-report
 - **Scheduling**: Schedule field visits
 - **Documentation**: Photo and document capture
 - **GPS Integration**: Location tracking
-- **Offline Support**: Work without internet
+- **Offline Support**: Work without internet (for auditees)
 
 ### 5. Reporting & Analytics
 
@@ -419,9 +420,9 @@ php artisan test --coverage-html coverage-report
 - **Export Features**: PDF, Excel export
 - **Dashboard**: Overview statistics
 
-### 6. PWA Features
+### 6. PWA Features (Auditee Only)
 
-- **Offline Mode**: Work without internet
+- **Offline Mode**: Work without internet (for auditees)
 - **Push Notifications**: Real-time notifications
 - **Mobile Optimized**: Responsive design
 - **App Installation**: Install as mobile app
@@ -818,6 +819,3 @@ public function boot()
 - **Laravel Documentation**: https://laravel.com/docs
 - **Tailwind CSS**: https://tailwindcss.com/docs
 - **Alpine.js**: https://alpinejs.dev/
-=======
-# GreenPort
->>>>>>> 4a0a3bbc9f73d1260b78ec0f0c8ef42397df009f

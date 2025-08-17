@@ -44,7 +44,7 @@
 
                         <!-- Tombol Aksi -->
                         <div class="flex items-center justify-end mt-6">
-                            <a href="{{ route('dashboard.auditor') }}" class="text-gray-600 hover:text-gray-900 mr-4">Batal</a>
+                            <a href="{{ route('dashboard') }}" class="text-gray-600 hover:text-gray-900 mr-4">Batal</a>
                             <button type="submit" class="bg-lime-500 hover:bg-lime-600 text-white font-semibold px-4 py-2 rounded-md shadow-sm">
                                 Simpan Indikator
                             </button>

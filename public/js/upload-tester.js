@@ -355,13 +355,18 @@ class UploadTester {
     }
     
     /**
-     * Update connection status in UI
+     * Update connection status in UI (only for auditees)
      */
     updateConnectionStatus() {
         const statusElement = document.getElementById('connection-status');
         if (statusElement) {
             statusElement.className = this.isOnline ? 'online' : 'offline';
             statusElement.textContent = this.isOnline ? 'Online' : 'Offline';
+        }
+        
+        // Log offline status changes for auditees only
+        if (document.querySelector('[data-role="auditee"]')) {
+            console.log('Connection status changed for auditee:', this.isOnline ? 'Online' : 'Offline');
         }
     }
     

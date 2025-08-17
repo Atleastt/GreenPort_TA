@@ -22,6 +22,7 @@ class Indikator extends Model
         'subkriteria_id',
         'teks_indikator',
         'bobot',
+        'poin',
         'tipe_jawaban',
     ];
 

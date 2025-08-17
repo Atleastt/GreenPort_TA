@@ -247,6 +247,11 @@ class DocumentUploadTest extends TestCase
     {
         $this->actingAs($this->user);
         
+        // Skip if user is not auditee
+        if (!$this->user->hasRole('Auditee')) {
+            $this->markTestSkipped('Offline upload simulation is only for auditees');
+        }
+        
         // Simulate offline condition by testing with invalid network
         // This test checks if the upload form handles network errors gracefully
         
